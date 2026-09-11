@@ -21,4 +21,9 @@ Hello is what will become a string
 and Second " closes the string
 followed by . ending the line
 
+How do we print x now? We could do Say, Print, Display, etc.
+I think Say sounds weird, especially if we do "Say List". Print just seems more intuitive.
+So in order to show what x is now equal to, we can do.
 
+Let x equal 10.
+Print x.
