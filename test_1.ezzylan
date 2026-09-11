@@ -1,3 +1,4 @@
-Print "Hello World".
-Print "Hi".
+Print "Hello World" Print "Hi".
 Print "Hello there.".
+
+print(print("Hello World"))
