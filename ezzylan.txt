@@ -1,0 +1,24 @@
+What shall our new language model look like?
+I like the idea of using "Let" in the code.
+So if I want x = 10 then
+
+Let x equal 10.
+
+Recalling fromm what I learned before, each term is an important unit of data
+Let tells the system that we are about to create a variable 
+(and it's specifically capitalized as would the first letter of any sentence)
+x is the variable, could be of any type
+equal prepares x to equal something
+and then 10 is the value
+most important, we are ending the line with a dot.
+(like all sentences should)
+
+Let x equal "Hello".
+
+Once again, Let, x, equal, are all something, but then we have "Hello"
+First " dictates the beginning of a string
+Hello is what will become a string
+and Second " closes the string
+followed by . ending the line
+
+
