@@ -67,7 +67,7 @@ while len(list_of_tokens) > 0:
                 if printing > 1:
                     raise Exception("Unexpected 'Print' after 'Print'.")
             except SyntaxError:
-                print(e)
+                print(Exception("Unexpected 'Print' after 'Print'."))
             print_value = ""
             token = tokens.pop(0)
             if token == "\"":
