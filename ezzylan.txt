@@ -27,3 +27,5 @@ So in order to show what x is now equal to, we can do.
 
 Let x equal 10.
 Print x.
+
+Also lets not forget spaces. Spaces are important.
