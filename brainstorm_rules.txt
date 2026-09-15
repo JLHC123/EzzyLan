@@ -1,0 +1,15 @@
+Print 5.
+If we can't solve this, we can't go bigger. 
+PRINT
+SPACE
+NUMBER
+END
+We need
+PRINT = Print. No print. No pRint. Print. 
+There needs to be a space between Print and 5. No Print5. No Print[Space][Space]5. 
+5, 10, 124, we just have to make it a number. And let it be known it is a number. 
+And period represents the end of the statement. And ya know what. 
+Print 5. Print 10. Print 11.
+Print 12. Print 1. Print 5.
+You can have multiple statements in a line like how you can have multiple sentences in a word doc line. 
+But first just Print 5.
