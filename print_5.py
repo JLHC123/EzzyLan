@@ -29,8 +29,20 @@ def tokenizer(ezzylan):
     # if line ends with space it adds "" to the tokens list, so we take into account that possibility
     if not token == "": 
         tokens.append(token)        
-    print(tokens)
-
+    # print(tokens)
+    return(tokens)
+    
+# def execute(instructions):
+#     # current restrictions: you can only print numbers
+#     if not instructions:
+#         return
+#     i = 0
+#     beginning = instructions[i]
+#     if beginning == "Print":
+#         print("Print function:")        
+#     else:
+#         print("Not a valid function")
+    
 def main():
     file = open("print_5.ezzylan", "r")
     ezzylan_test = file.read()
@@ -38,7 +50,10 @@ def main():
     
     lines = ezzylan_test.split("\n")
     for line in lines:
-        tokenizer(line)
+        instructions = tokenizer(line)
+        print(instructions)
+        # execute(instructions)
+        
 
 if __name__ == "__main__":
     main()
