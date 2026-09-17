@@ -15,8 +15,10 @@ def tokenizer(ezzylan):
         else:
             token += character
             space_before = False
-        i += 1 
-    tokens.append(token)        
+        i += 1
+    # if line ends with space it adds "" to the tokens list, so we take into account that possibility
+    if not token == "": 
+        tokens.append(token)        
     print(tokens)
 
 def main():
