@@ -3,14 +3,24 @@ def tokenizer(ezzylan):
     tokens = []
     token = ""
     space_before = False
+    period_before = False
     while i < len(ezzylan):
         character = ezzylan[i]
         if character == " ":
             # if there are two or more spaces back to back, skip this part
             if space_before == False:
-                tokens.append(token)
+                if not token == "": 
+                    tokens.append(token)  
                 space_before = True
             tokens.append(" ")
+            token = ""
+        elif character == ".":
+            # if there are two or more spaces back to back, skip this part
+            if period_before == False:
+                if not token == "": 
+                    tokens.append(token)  
+                space_before = True
+            tokens.append(".")
             token = ""
         else:
             token += character
