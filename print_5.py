@@ -31,17 +31,27 @@ def tokenizer(ezzylan):
         tokens.append(token)        
     # print(tokens)
     return(tokens)
+
+def convert(tokens):
+    instructions = []
+    if not tokens:
+        return instructions
+    for token in tokens:
+        if token == "Print":
+            instruction = "PRINT"
+        elif token == " ":
+            instruction = "SPACE"
+        elif token == ".":
+            instruction = "END"        
+        elif token.isdigit():
+            instruction = "NUMBER"
+        else:
+            instruction = token
+        instructions.append(instruction)
+    return instructions
     
-# def execute(instructions):
-#     # current restrictions: you can only print numbers
-#     if not instructions:
-#         return
-#     i = 0
-#     beginning = instructions[i]
-#     if beginning == "Print":
-#         print("Print function:")        
-#     else:
-#         print("Not a valid function")
+        
+                
     
 def main():
     file = open("print_5.ezzylan", "r")
@@ -50,9 +60,12 @@ def main():
     
     lines = ezzylan_test.split("\n")
     for line in lines:
-        instructions = tokenizer(line)
+        tokens = tokenizer(line)
+        # print(tokens)
+        instructions = convert(tokens)
         print(instructions)
-        # execute(instructions)
+
+
         
 
 if __name__ == "__main__":
