@@ -49,7 +49,19 @@ def convert(tokens):
             instruction = token
         instructions.append(instruction)
     return instructions
-    
+
+# will refine this
+def execute(instructions, tokens):
+    if instructions == ['PRINT', 'SPACE', 'NUMBER', 'END']:
+        for token in tokens:
+            if token.isdigit():
+                number = int(token)
+                print(number)
+                return
+    else:
+        print("Not a valid line")
+        
+        
         
                 
     
@@ -63,7 +75,7 @@ def main():
         tokens = tokenizer(line)
         # print(tokens)
         instructions = convert(tokens)
-        print(instructions)
+        execute(instructions, tokens)
 
 
         
