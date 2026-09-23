@@ -19,7 +19,7 @@ def tokenizer(ezzylan):
             if period_before == False:
                 if not token == "": 
                     tokens.append(token)  
-                space_before = True
+                period_before = True
             tokens.append(".")
             token = ""
         else:
