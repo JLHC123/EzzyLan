@@ -13,3 +13,7 @@ Print 5. Print 10. Print 11.
 Print 12. Print 1. Print 5.
 You can have multiple statements in a line like how you can have multiple sentences in a word doc line. 
 But first just Print 5.
+
+Should +, -, /, * be as so (symbols) or spelled out?
+plus, minus, divide, multiply, "to the power of"? Floored? remainder of???
+I will need to rethink how to do multiple + statements within one print statement. Reinvent the wheel (for me)

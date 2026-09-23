@@ -4,6 +4,7 @@ def tokenizer(ezzylan):
     token = ""
     space_before = False
     period_before = False
+    plus_before = False
     while i < len(ezzylan):
         character = ezzylan[i]
         if character == " ":
@@ -21,6 +22,13 @@ def tokenizer(ezzylan):
                     tokens.append(token)  
                 period_before = True
             tokens.append(".")
+            token = ""
+        elif character == "+":
+            if plus_before == False:
+                if not token == "":
+                    tokens.append(token)
+                plus_before = True
+            tokens.append("+")
             token = ""
         else:
             token += character
@@ -63,15 +71,16 @@ def main():
         "Print": "PRINT",
         ".": "END",
         " ": "SPACE",
+        "+": "ADD"
     }
     
     lines = ezzylan_test.split("\n")
     for line in lines:
         tokens = tokenizer(line)
-        # print(tokens)
+        print(tokens)
         instructions = convert(tokens, key_words)
-        # print(instructions)
-        execute(instructions, tokens)
+        print(instructions)
+        # execute(instructions, tokens)
 
 
         
