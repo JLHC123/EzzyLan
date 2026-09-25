@@ -82,6 +82,12 @@ class PrintObject:
         elif self.end == True:
             self.end = False
             self.printing_error()
+    # checks if valid printing statement
+    def check(self):
+        if self.printing == True and self.value and self.end == True:
+            return True
+        else:
+            return False
               
 def execute(instructions, tokens):
     if not instructions:
@@ -105,7 +111,8 @@ def execute(instructions, tokens):
             if instructions[i] == "ERROR":
                 printing.printing_error()
             i += 1
-        if printing.printing == True:
+        # checks if valid printing statement
+        if printing.check():
             print(printing.value)
     else:
         # if multiple lines of logic can exist in one line, this will need to change
