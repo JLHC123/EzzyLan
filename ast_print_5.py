@@ -3,7 +3,7 @@ def tokenizer(ezzylan):
     tokens = []
     token = ""
     space_before = False
-    # period_before = False
+    period_before = False
     # plus_before = False
     while i < len(ezzylan):
         character = ezzylan[i]
@@ -14,15 +14,14 @@ def tokenizer(ezzylan):
                     tokens.append(token)  
                 space_before = True
             token = ""
-        # temporarily will disable periods to simplify things to just Print 5
-        # elif character == ".":
-        #     # if there are two or more spaces back to back, skip this part
-        #     if period_before == False:
-        #         if not token == "": 
-        #             tokens.append(token)  
-        #         period_before = True
-        #     tokens.append(".")
-        #     token = ""
+        elif character == ".":
+            # if there are two or more spaces back to back, skip this part
+            if period_before == False:
+                if not token == "": 
+                    tokens.append(token)  
+                period_before = True
+            tokens.append(".")
+            token = ""
         # same with addition
         # elif character == "+":
         #     # should i++ / some form of this exist in the code?
@@ -35,10 +34,9 @@ def tokenizer(ezzylan):
         else:
             token += character
             space_before = False
+            period_before = False
             # plus_before = False
-            # period_before = False
         i += 1
-    # if line ends with space it adds "" to the tokens list, so we take into account that possibility
     if not token == "": 
         tokens.append(token)        
     return(tokens)
@@ -61,6 +59,7 @@ class Program():
     # a program is made of statements
     def __init__(self):
         self.statements = []
+        self.valid = False
     # way to visually see our Program    
     def print_tree(self):
         print("Program")
@@ -68,8 +67,9 @@ class Program():
             statement.print_tree(4) # for indentation purposes
     # we execute every statement in the program        
     def execute(self):
-        for statement in self.statements:
-            statement.execute()
+        if self.valid == True:
+            for statement in self.statements:
+                statement.execute()
 
 class Print():
     # a Print statement has an expression to print
@@ -106,18 +106,30 @@ def abstract_tree(instructions, tokens):
             tree.statements.append(print_node)
             i += 1
             if i >= len(instructions):
-                print("Error, index out of range")
+                print("Error, expected expression")
                 error = True
             elif instructions[i] == "NUMBER":
                 number = int(tokens[i])
                 value = Number(number)
                 print_node.expression = value
                 i += 1
+                if i >= len(instructions):
+                    print("Error, expected end or expression")
+                    error = True
+                elif instructions[i] == "END":
+                    tree.valid = True
+                    i += 1
+                    if i < len(instructions):
+                        print("Error, nothing else should've been added")
+                        error = True
+                        tree.valud = False
+                else:
+                    print("Error, expected end")
             else:
                 print("Error, expected number")
                 error = True
         else:
-            print("Error, expected print")
+            print("Error, expected statement (Print)")
             error = True
     return tree
 
