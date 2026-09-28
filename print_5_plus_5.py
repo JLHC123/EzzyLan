@@ -13,7 +13,6 @@ def tokenizer(ezzylan):
                 if not token == "": 
                     tokens.append(token)  
                 space_before = True
-            tokens.append(" ")
             token = ""
         elif character == ".":
             # if there are two or more spaces back to back, skip this part
@@ -57,6 +56,7 @@ def convert(tokens, key_words):
             instructions.append("ERROR")
     return instructions
 
+# this is doing too many things
 class PrintObject:
     def __init__(self):
         # for the print statement to work, self.printing must remain true
@@ -111,9 +111,6 @@ def execute(instructions, tokens):
                 printing.add_value(value)
             elif instructions[i] == "END":
                 printing.ending()
-            # for now multiple spaces will not affect the running of the code
-            elif instructions[i] == "SPACE":
-                pass
             elif instructions[i] == "ERROR":
                 printing.printing_error()
             elif instructions[i] == "ADD":
@@ -123,11 +120,8 @@ def execute(instructions, tokens):
         if printing.check():
             print(printing.value)
     else:
-        # if multiple lines of logic can exist in one line, this will need to change
-        # ['SPACE', 'PRINT',...] is currently an error 
         print("Error! Invalid line of code!")
-             
-    
+  
 def main():
     file = open("print_5.ezzylan", "r")
     ezzylan_test = file.read()

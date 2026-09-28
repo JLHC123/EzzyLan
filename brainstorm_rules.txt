@@ -8,12 +8,14 @@ We need
 PRINT = Print. No print. No pRint. Print. 
 There needs to be a space between Print and 5. No Print5. No Print[Space][Space]5. 
 5, 10, 124, we just have to make it a number. And let it be known it is a number. 
-And period represents the end of the statement. And ya know what. 
-Print 5. Print 10. Print 11.
-Print 12. Print 1. Print 5.
-You can have multiple statements in a line like how you can have multiple sentences in a word doc line. 
-But first just Print 5.
+And period represents the end of the statement.
 
 Should +, -, /, * be as so (symbols) or spelled out?
 plus, minus, divide, multiply, "to the power of"? Floored? remainder of???
 I will need to rethink how to do multiple + statements within one print statement. Reinvent the wheel (for me)
+
+Spaces will no longer be considered in the list of tokens. For splitting, yes. But it won't join the list of tokens nor be an instruction.
+
+I will need to complete more of my tokenizer for future cases as well. And create a tree and ability to read tree!
+
+For now rebuild with making a tree out of Print 5, add period to the mix, add more features, etc.
