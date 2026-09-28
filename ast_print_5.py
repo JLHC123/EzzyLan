@@ -57,29 +57,6 @@ def convert(tokens, key_words):
             instructions.append("ERROR")
     return instructions
 
-class Print():
-    # a Print statement has an expression to print
-    def __init__(self, expression):
-        self.expression = expression
-    # in the visual tree we print "Print" with indentation and then call to print the value / expression within Print    
-    def print_tree(self, indent):
-        print(" " * indent + "Print")
-        self.expression.print_tree(indent + 4)
-    # we call the value of the Print expression to print    
-    def execute(self):
-        print(self.expression.execute())
-
-class Number():
-    # if Number(5), then self.value = 5
-    def __init__(self, value):
-        self.value = value
-    # in the visual tree we indent further and display "Number: " followed by its value, say "Number: 5"    
-    def print_tree(self, indent):
-        print(" " * indent + f"Number: {self.value}")
-    # We just simply return the value     
-    def execute(self):
-        return self.value
-        
 class Program():
     # a program is made of statements
     def __init__(self):
@@ -94,18 +71,54 @@ class Program():
         for statement in self.statements:
             statement.execute()
 
+class Print():
+    # a Print statement has an expression to print
+    def __init__(self):
+        self.expression = None
+    # in the visual tree we print "Print" with indentation and then call to print the value / expression within Print    
+    def print_tree(self, indent):
+        print(" " * indent + "Print")
+        if self.expression:
+            self.expression.print_tree(indent + 4)
+    # we call the value of the Print expression to print    
+    def execute(self):
+        if self.expression:
+            print(self.expression.execute())
+
+class Number():
+    # if Number(5), then self.value = 5
+    def __init__(self, value):
+        self.value = value
+    # in the visual tree we indent further and display "Number: " followed by its value, say "Number: 5"    
+    def print_tree(self, indent):
+        print(" " * indent + f"Number: {self.value}")
+    # We just simply return the value     
+    def execute(self):
+        return self.value
+
 def abstract_tree(instructions, tokens):
     tree = Program()
-    # probably will become a while or for loop when we bring in addition for example
-    if instructions[0] == "PRINT":
-        if instructions[1] == "NUMBER":
-            number = int(tokens[1])
-            value = Number(number)
-            tree.statements.append(Print(value))
+    i = 0
+    error = None
+    while i < len(instructions) and error != True:
+        if instructions[i] == "PRINT":
+            print_node = Print()
+            tree.statements.append(print_node)
+            i += 1
+            if i >= len(instructions):
+                print("Error, index out of range")
+                error = True
+            elif instructions[i] == "NUMBER":
+                number = int(tokens[i])
+                value = Number(number)
+                print_node.expression = value
+                i += 1
+            else:
+                print("Error, expected number")
+                error = True
         else:
-            print("Error, expected number")
-    else:
-        print("Error, expected print")
+            print("Error, expected print")
+            error = True
     return tree
 
 def main():
