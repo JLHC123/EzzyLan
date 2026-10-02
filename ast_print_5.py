@@ -4,7 +4,7 @@ def tokenizer(ezzylan):
     token = ""
     space_before = False
     period_before = False
-    # plus_before = False
+    plus_before = False
     while i < len(ezzylan):
         character = ezzylan[i]
         if character == " ":
@@ -22,20 +22,18 @@ def tokenizer(ezzylan):
                 period_before = True
             tokens.append(".")
             token = ""
-        # same with addition
-        # elif character == "+":
-        #     # should i++ / some form of this exist in the code?
-        #     if plus_before == False:
-        #         if not token == "":
-        #             tokens.append(token)
-        #         plus_before = True
-        #     tokens.append("+")
-        #     token = ""
+        elif character == "+":
+            if plus_before == False:
+                if not token == "":
+                    tokens.append(token)
+                plus_before = True
+            tokens.append("+")
+            token = ""
         else:
             token += character
             space_before = False
             period_before = False
-            # plus_before = False
+            plus_before = False
         i += 1
     if not token == "": 
         tokens.append(token)        
@@ -77,7 +75,7 @@ class Print():
         self.expression = None
     # in the visual tree we print "Print" with indentation and then call to print the value / expression within Print    
     def print_tree(self, indent):
-        print(" " * indent + "Print")
+        print(" " * indent + "Print:")
         if self.expression:
             self.expression.print_tree(indent + 4)
     # we call the value of the Print expression to print    
@@ -95,6 +93,19 @@ class Number():
     # We just simply return the value     
     def execute(self):
         return self.value
+    
+class Add():
+    def __init__(self):
+        self.left = None
+        self.right = None
+    def print_tree(self, indent):
+        print(" " * indent + "Add:")
+        if self.left and self.right:
+            self.left.print_tree(indent + 4)
+            self.right.print_tree(indent + 4)
+    def execute(self):
+        if self.left and self.right:
+            return (int(self.left.execute()) + int(self.right.execute()))
 
 def abstract_tree(instructions, tokens):
     tree = Program()
@@ -114,17 +125,43 @@ def abstract_tree(instructions, tokens):
                 print_node.expression = value
                 i += 1
                 if i >= len(instructions):
-                    print("Error, expected end or expression")
+                    print("Error, expected end")
                     error = True
+                # will soon need to make all of this into like recursion or something so that we can loop infinitely.
+                elif instructions[i] == "ADD":
+                    add = Add()
+                    add.left = value
+                    i += 1
+                    if instructions[i] == "NUMBER":
+                        number = int(tokens[i])
+                        value = Number(number)
+                        add.right = value
+                        print_node.expression = add
+                        i += 1
+                        if instructions[i] == "END":
+                            tree.valid = True
+                            i += 1
+                            if i < len(instructions):
+                                print("Error, nothing else should've been added")
+                                error = True
+                                tree.valid = False
+                        else:
+                            print("Error, expected end")
+                            error = True
+                    else:
+                        print("Error, expected secondary number")
+                        error = True
+                    
                 elif instructions[i] == "END":
                     tree.valid = True
                     i += 1
                     if i < len(instructions):
                         print("Error, nothing else should've been added")
                         error = True
-                        tree.valud = False
+                        tree.valid = False
                 else:
                     print("Error, expected end")
+                    error = True
             else:
                 print("Error, expected number")
                 error = True
@@ -147,6 +184,8 @@ def main():
     
     lines = ezzylan_test.split("\n")
     for line in lines:
+        if not line.strip():
+            continue
         tokens = tokenizer(line)
         print(tokens)
         instructions = convert(tokens, key_words)
