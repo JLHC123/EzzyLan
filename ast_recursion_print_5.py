@@ -1,0 +1,78 @@
+def tokenizer(ezzylan):
+    i = 0
+    tokens = []
+    token = ""
+    space_before = False
+    period_before = False
+    plus_before = False
+    while i < len(ezzylan):
+        character = ezzylan[i]
+        if character == " ":
+            # if there are two or more spaces back to back, skip this part
+            if space_before == False:
+                if not token == "": 
+                    tokens.append(token)  
+                space_before = True
+            token = ""
+        elif character == ".":
+            # if there are two or more spaces back to back, skip this part
+            if period_before == False:
+                if not token == "": 
+                    tokens.append(token)  
+                period_before = True
+            tokens.append(".")
+            token = ""
+        elif character == "+":
+            if plus_before == False:
+                if not token == "":
+                    tokens.append(token)
+                plus_before = True
+            tokens.append("+")
+            token = ""
+        else:
+            token += character
+            space_before = False
+            period_before = False
+            plus_before = False
+        i += 1
+    if not token == "": 
+        tokens.append(token)        
+    return(tokens)
+
+def convert(tokens, key_words):
+    instructions = []
+    if not tokens:
+        return instructions
+    for token in tokens:
+        if token in key_words:
+            instructions.append(key_words[token])
+        # this may need to get updated when float numbers are considered
+        elif token.isdigit():
+            instructions.append("NUMBER")
+        else:
+            instructions.append("ERROR")
+    return instructions
+
+def main():
+    file = open("print_5.ezzylan", "r")
+    ezzylan_test = file.read()
+    file.close()
+    
+    key_words = {
+        "Print": "PRINT",
+        ".": "END",
+        " ": "SPACE",
+        "+": "ADD"
+    }
+    
+    lines = ezzylan_test.split("\n")
+    for line in lines:
+        if not line.strip():
+            continue
+        tokens = tokenizer(line)
+        print(tokens)
+        instructions = convert(tokens, key_words)
+        print(instructions)
+
+if __name__ == "__main__":
+    main()  
