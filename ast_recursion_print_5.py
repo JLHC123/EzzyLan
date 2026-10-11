@@ -38,13 +38,25 @@ def convert(tokens, key_words):
             instructions.append("ERROR")
     return instructions
 
-def look_head_number_loop(instructions, i):
+
+
+def look_head_what_is_print_expr(instructions, i):
+    # out of range index
+    if i >= len(instructions):
+        print("Error, index range")
+        return
+    # there's probably a float and string version of this too
     if instructions[i] == "NUMBER":
         print("We are printing a number, expect the end or an addition operator to follow")
         i += 1
+        # out of range index
+        if i >= len(instructions):
+            print("Error, index range")
+            return
         if instructions[i] == "END":
             print("We should be done. Check if there are any more tokens")
             i += 1
+            # not the end error
             if i < len(instructions):
                 print("Error, we have more tokens after the suppossed end of the line of code")
             else:
@@ -52,7 +64,7 @@ def look_head_number_loop(instructions, i):
         elif instructions[i] == "ADD":
             print("We are adding something, expect a number to follow")
             i += 1
-            look_head_number_loop(instructions, i)
+            look_head_what_is_print_expr(instructions, i)
             # this is the moment we call back to instructions[i] == "NUMBER"
             # thus recursion!
     else:
@@ -69,7 +81,7 @@ def look_ahead(instructions):
         print("We are printing something, expect a number (or string) to follow")
         i += 1
         # if we think of this as a stand in for expression, this is how the recursive function could work
-        look_head_number_loop(instructions, i)
+        look_head_what_is_print_expr(instructions, i)
     else:
         print("Error, expected Print (or other statement) but found nothing")
             
