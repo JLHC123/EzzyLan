@@ -25,6 +25,7 @@ def tokenizer(ezzylan, key_characters):
 
 def convert(tokens, key_words):
     instructions = []
+    # is it even possible for this to be empty? If in main() we just skip empty lines
     if not tokens:
         return instructions # empty line
     for token in tokens:
@@ -37,20 +38,41 @@ def convert(tokens, key_words):
             instructions.append("ERROR")
     return instructions
 
-class Program():
-    # a program is made of statements
-    def __init__(self):
-        self.statements = []
-
-def abstract_syntax_tree(instructions, tokens):
-    program = Program()
-    if not instructions:
-        print("Nothing in program")
-        return program
+def look_head_number_loop(instructions, i):
+    if instructions[i] == "NUMBER":
+        print("We are printing a number, expect the end or an addition operator to follow")
+        i += 1
+        if instructions[i] == "END":
+            print("We should be done. Check if there are any more tokens")
+            i += 1
+            if i < len(instructions):
+                print("Error, we have more tokens after the suppossed end of the line of code")
+            else:
+                print("We are officially done. Passed")
+        elif instructions[i] == "ADD":
+            print("We are adding something, expect a number to follow")
+            i += 1
+            look_head_number_loop(instructions, i)
+            # this is the moment we call back to instructions[i] == "NUMBER"
+            # thus recursion!
     else:
-        print("Something in program")
-        return program
+        print("Expected a number but nothing found")
 
+def look_ahead_index_range(instructions, i):
+    if i >= len(instructions):
+        print("Error, index range")
+        return
+
+def look_ahead(instructions):
+    i = 0
+    if instructions[i] == "PRINT":
+        print("We are printing something, expect a number (or string) to follow")
+        i += 1
+        # if we think of this as a stand in for expression, this is how the recursive function could work
+        look_head_number_loop(instructions, i)
+    else:
+        print("Error, expected Print (or other statement) but found nothing")
+            
 def main():
     file = open("print_5(1).ezzylan", "r")
     ezzylan_test = file.read()
@@ -75,7 +97,7 @@ def main():
         print(tokens)
         instructions = convert(tokens, key_words)
         print(instructions)
-        program = abstract_syntax_tree(instructions, tokens)
+        look_ahead(instructions)
 
 if __name__ == "__main__":
     main()  
