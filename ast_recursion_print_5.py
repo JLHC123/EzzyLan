@@ -21,12 +21,12 @@ def tokenizer(ezzylan, key_characters):
         i += 1
     if not token == "": 
         tokens.append(token)        
-    return(tokens)
+    return tokens
 
 def convert(tokens, key_words):
     instructions = []
     if not tokens:
-        return instructions
+        return instructions # empty line
     for token in tokens:
         if token in key_words:
             instructions.append(key_words[token])
@@ -37,8 +37,22 @@ def convert(tokens, key_words):
             instructions.append("ERROR")
     return instructions
 
+class Program():
+    # a program is made of statements
+    def __init__(self):
+        self.statements = []
+
+def abstract_syntax_tree(instructions, tokens):
+    program = Program()
+    if not instructions:
+        print("Nothing in program")
+        return program
+    else:
+        print("Something in program")
+        return program
+
 def main():
-    file = open("print_5.ezzylan", "r")
+    file = open("print_5(1).ezzylan", "r")
     ezzylan_test = file.read()
     file.close()
     
@@ -61,6 +75,7 @@ def main():
         print(tokens)
         instructions = convert(tokens, key_words)
         print(instructions)
+        program = abstract_syntax_tree(instructions, tokens)
 
 if __name__ == "__main__":
     main()  
