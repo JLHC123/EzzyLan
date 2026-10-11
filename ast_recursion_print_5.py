@@ -38,52 +38,68 @@ def convert(tokens, key_words):
             instructions.append("ERROR")
     return instructions
 
-
-
-def look_head_what_is_print_expr(instructions, i):
+def look_ahead_number_expr_loop(is_valid, instructions, i):
+    print("We are printing a number, expect the end or an addition operator to follow")
+    i += 1
     # out of range index
     if i >= len(instructions):
         print("Error, index range")
-        return
-    # there's probably a float and string version of this too
-    if instructions[i] == "NUMBER":
-        print("We are printing a number, expect the end or an addition operator to follow")
+        is_valid = False
+        return is_valid
+    if instructions[i] == "END":
+        print("We should be done. Check if there are any more tokens")
         i += 1
-        # out of range index
+        # not the end error
+        if i < len(instructions):
+            print("Error, we have more tokens after the suppossed end of the line of code")
+            is_valid = False
+            return is_valid
+        # end
+        else:
+            print("We are officially done. Passed")
+            is_valid = True
+            return is_valid
+    elif instructions[i] == "ADD":
+        print("We are adding something, expect a number to follow")
+        i += 1
         if i >= len(instructions):
             print("Error, index range")
-            return
-        if instructions[i] == "END":
-            print("We should be done. Check if there are any more tokens")
-            i += 1
-            # not the end error
-            if i < len(instructions):
-                print("Error, we have more tokens after the suppossed end of the line of code")
-            else:
-                print("We are officially done. Passed")
-        elif instructions[i] == "ADD":
-            print("We are adding something, expect a number to follow")
-            i += 1
-            look_head_what_is_print_expr(instructions, i)
-            # this is the moment we call back to instructions[i] == "NUMBER"
-            # thus recursion!
-    else:
-        print("Expected a number but nothing found")
+            is_valid = False
+            return is_valid
+        if instructions[i] == "NUMBER":
+            is_valid = look_ahead_number_expr_loop(is_valid, instructions, i)
+            return is_valid
+        else:
+            print("Expected a number but nothing found")
+            is_valid = False
+            return is_valid
 
-def look_ahead_index_range(instructions, i):
+def look_ahead_what_is_being_printed(is_valid, instructions, i):
+    # out of range index
     if i >= len(instructions):
         print("Error, index range")
-        return
+        is_valid = False
+        return is_valid
+    # there's probably a float and string version of this too
+    if instructions[i] == "NUMBER":
+        is_valid = look_ahead_number_expr_loop(is_valid, instructions, i)
+        return is_valid
+    else:
+        print("Expected a number but nothing found")
+        is_valid = False
+    return is_valid
 
-def look_ahead(instructions):
+def look_ahead(is_valid, instructions):
     i = 0
     if instructions[i] == "PRINT":
         print("We are printing something, expect a number (or string) to follow")
         i += 1
         # if we think of this as a stand in for expression, this is how the recursive function could work
-        look_head_what_is_print_expr(instructions, i)
+        is_valid = look_ahead_what_is_being_printed(is_valid, instructions, i)
     else:
         print("Error, expected Print (or other statement) but found nothing")
+        is_valid = False
+    return is_valid
             
 def main():
     file = open("print_5(1).ezzylan", "r")
@@ -109,7 +125,9 @@ def main():
         print(tokens)
         instructions = convert(tokens, key_words)
         print(instructions)
-        look_ahead(instructions)
+        is_valid = None
+        is_valid = look_ahead(is_valid, instructions)
+        print(is_valid)
 
 if __name__ == "__main__":
     main()  
