@@ -5,20 +5,26 @@ class Program():
         print("Program:")
         for statement in self.statements:
             statement.visualize(4)
+    def execute(self):
+        for statement in self.statements:
+            statement.execute()
 
 class PrintStatement():
     def __init__(self):
-        self.expressions = []
+        self.expression = None
     def visualize(self, indent):
         print(" " * indent + "Print:")
-        for expression in self.expressions:
-            expression.visualize(indent + 4)
+        self.expression.visualize(indent + 4)
+    def execute(self):
+        print(self.expression.execute())
 
 class Number():
     def __init__(self, value):
         self.value = value 
     def visualize(self, indent):
         print(" " * indent + f"Number: {self.value}")
+    def execute(self):
+        return int(self.value)
 
 class Addition():
     def __init__(self):
@@ -28,6 +34,8 @@ class Addition():
         print(" " * indent + "Addition:")
         self.left_value.visualize(indent + 4)
         self.right_value.visualize(indent + 4)
+    def execute(self):
+        return self.left_value.execute() + self.right_value.execute()
 
 def main():
     print("Hi")
@@ -54,7 +62,7 @@ def main():
     addition.right_value = addition_1
     
     # and then we pass that to print_statement
-    print_statement.expressions.append(addition)
+    print_statement.expression = addition
     
     # and we then append that to program
     program.statements.append(print_statement)
@@ -62,7 +70,10 @@ def main():
     # since each recursion creates its own addition expression and own number, then this should be able to repeat itself as many time as we need
     # so long as it's implemented correctly
 
-    program.visualize()    
+    program.visualize()
+    
+    # and then we also just excute the program
+    program.execute()
 
 if __name__ == "__main__":
     main()
