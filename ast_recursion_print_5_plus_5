@@ -1,0 +1,177 @@
+# converts line of ezzylan code into tokens
+def tokenizer(ezzylan, key_characters):
+    i = 0
+    tokens = []
+    token = ""
+    while i < len(ezzylan):
+        character = ezzylan[i]
+        if character == " ":
+            if not token == "": 
+                tokens.append(token)  
+            token = ""
+        # simplifies tokenizer, I can later add more characters to key_characters and this logic will apply
+        # though I imagine things might get more dicey with parenthesis? Will handle it when we get to that point
+        elif character in key_characters:
+            if not token == "": 
+                tokens.append(token)  
+            tokens.append(character)
+            token = ""
+        else:
+            token += character
+        i += 1
+    if not token == "": 
+        tokens.append(token)        
+    return tokens
+
+def convert(tokens, key_words):
+    instructions = []
+    # is it even possible for this to be empty? If in main() we just skip empty lines
+    if not tokens:
+        return instructions # empty line
+    for token in tokens:
+        if token in key_words:
+            instructions.append(key_words[token])
+        # this may need to get updated when float numbers are considered
+        elif token.isdigit():
+            instructions.append("NUMBER")
+        else:
+            instructions.append("ERROR")
+    return instructions
+
+class Program():
+    def __init__(self):
+        self.statements = []
+        self.is_valid = None
+    def visualize(self):
+        print("Program:")
+        if self.statements != None:
+            for statement in self.statements:
+                if statement != None:
+                    statement.visualize(4)
+    def execute(self):
+        if self.is_valid == True:
+            for statement in self.statements:
+                statement.execute()
+        else:
+            # I might try to add a self.error = [] and have it collect every error it found, and maybe even where it found the error
+            print("Program not valid")
+
+class PrintStatement():
+    def __init__(self):
+        self.expression = None
+    def visualize(self, indent):
+        print(" " * indent + "Print:")
+        if self.expression != None:
+            self.expression.visualize(indent + 4)
+    def execute(self):
+        print(self.expression.execute())
+
+class Number():
+    def __init__(self, value):
+        self.value = value 
+    def visualize(self, indent):
+        print(" " * indent + f"Number: {self.value}")
+    def execute(self):
+        return int(self.value)
+
+class Addition():
+    def __init__(self):
+        self.left_value = None
+        self.right_value = None
+    def visualize(self, indent):
+        print(" " * indent + "Addition:")
+        if self.left_value != None:
+            self.left_value.visualize(indent + 4)
+        if self.right_value != None:
+            self.right_value.visualize(indent + 4)
+    def execute(self):
+        return self.left_value.execute() + self.right_value.execute()
+
+
+def first_statement(instructions, tokens, program):
+    i = 0
+    if instructions[i] == "PRINT":
+        i += 1
+        print_statement = PrintStatement()
+        print_expression = number_or_string(instructions, tokens, program, i)
+        print_statement.expression = print_expression
+        return print_statement
+    else:
+        program.is_valid = False
+        return
+
+def number_or_string(instructions, tokens, program, i):
+    if i >= len(instructions):
+        program.is_valid = False
+        return
+    if instructions[i] == "NUMBER":
+        number_expression = Number(tokens[i])
+        number_expression = end_or_add_loop(instructions, tokens, program, i, number_expression)
+        return number_expression
+    else:
+        program.is_valid = False
+        return
+
+def end_or_add_loop(instructions, tokens, program, i, number_expression):
+    i += 1
+    if i >= len(instructions):
+        program.is_valid = False
+        return number_expression
+    
+    if instructions[i] == "END":
+        i += 1
+        if i < len(instructions):
+            program.is_valid = False
+            return number_expression
+        else:
+            program.is_valid = True
+            return number_expression
+    
+    elif instructions[i] == "ADD":
+        addition_expression = Addition()
+        i += 1
+        if i >= len(instructions):
+            program.is_valid = False
+            return addition_expression
+        if instructions[i] == "NUMBER":
+            addition_expression.left_value = number_expression
+            right_value = number_or_string(instructions, tokens, program, i)
+            addition_expression.right_value = right_value
+            return addition_expression
+        else:
+            program.is_valid = False
+            return
+
+def main():
+    file = open("print_5(1).ezzylan", "r")
+    ezzylan_test = file.read()
+    file.close()
+    
+    key_words = {
+        "Print": "PRINT",
+        ".": "END",
+        "+": "ADD"
+    }
+    
+    key_characters = {
+        ".",
+        "+",
+    }
+    
+    lines = ezzylan_test.split("\n")
+    for line in lines:
+        if not line.strip():
+            continue
+        tokens = tokenizer(line, key_characters)
+        print(tokens)
+        instructions = convert(tokens, key_words)
+        print(instructions)
+        program = Program()
+        statement = first_statement(instructions, tokens, program)
+        program.statements.append(statement)
+        program.visualize()
+        program.execute()
+
+if __name__ == "__main__":
+    main()  
+
