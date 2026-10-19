@@ -38,6 +38,14 @@ def convert(tokens, key_words):
             instructions.append("ERROR")
     return instructions
 
+# whenever you see statements != None, or something similar, is because when an error occurs (out of index range or invalid expression)
+# I usually return the original parameter that was sent into the function (like number_expression, addition_expression) as itself
+# so no edits. Which would leave say addition.left_value as None. 
+# Thus, in order to have visualize() run correctly (this issue doesn't seem to impact execute() as of now) I have it so that it will only 
+# run visualize on the children of a class if it exists. 
+
+# also self.is_valid = True is needed for the code to "execute" correctly, otherwise it assumes there's an error somemwhere in the code
+# it also starts out as None in case there are any error cases that I miss, because it does require the code to end with a period
 class Program():
     def __init__(self):
         self.statements = []
@@ -87,25 +95,48 @@ class Addition():
     def execute(self):
         return self.left_value.execute() + self.right_value.execute()
 
+class Subtraction():
+    def __init__(self):
+        self.left_value = None
+        self.right_value = None
+    def visualize(self, indent):
+        print(" " * indent + "Subtraction:")
+        if self.left_value != None:
+            self.left_value.visualize(indent + 4)
+        if self.right_value != None:
+            self.right_value.visualize(indent + 4)
+    def execute(self):
+        return self.left_value.execute() - self.right_value.execute()
+
 
 def first_statement(instructions, tokens, program):
     i = 0
-    if instructions[i] == "PRINT":
+    # when I include other things like Let and If they will become their own if statements (or maybe list of it that maps onto a function)
+    if instructions[i] == "PRINT": 
         i += 1
+        # we create a PrintStatement object that will automatically display Print: when visualize() is used
         print_statement = PrintStatement()
         print_expression = number_or_string(instructions, tokens, program, i)
+        # but as for print_expression, it depends on the function number_or_string (still a name in progress) if it will contain 
+        # something or not
         print_statement.expression = print_expression
+        # and then program.statements.append(print_statement), though this might also be something that might need work on
         return print_statement
     else:
         program.is_valid = False
+        # technically maybe I could pass statements as a parameter, but for now I've decided to return nothing implicitly
         return
 
 def number_or_string(instructions, tokens, program, i):
+    # if at end of line of code (like instructions is only [PRINT])
     if i >= len(instructions):
         program.is_valid = False
+        # return nothing
         return
     if instructions[i] == "NUMBER":
         number_expression = Number(tokens[i])
+        # now we pass number_expression as a parameter because there is a chance that we might need to update what number_expression is 
+        # like if we have addition, addition takes priority before numbers, and thus number(5) would become a left_value for it
         number_expression = end_or_add_loop(instructions, tokens, program, i, number_expression)
         return number_expression
     else:
@@ -116,31 +147,62 @@ def end_or_add_loop(instructions, tokens, program, i, number_expression):
     i += 1
     if i >= len(instructions):
         program.is_valid = False
+        # again return nothing if we are out of range and stuff
         return number_expression
     
     if instructions[i] == "END":
         i += 1
+        # here we need to check if there is nothing else after the suppossed end, if there is then is_valid = False
         if i < len(instructions):
             program.is_valid = False
+            # and thus number_expression stays the same but the program is invalid
             return number_expression
         else:
+            # if it is valid then we still return number_expression as it is, but now the code will run!
             program.is_valid = True
             return number_expression
     
     elif instructions[i] == "ADD":
+        # we create a Addition object
         addition_expression = Addition()
         i += 1
+        # now we "look ahead" (this part might need to be refactored since Subtraction shares the same logic)
         if i >= len(instructions):
+            # if there is nothing after Addition it leaves left_value and right_value as empty
+            # which now that I think about it I might change by having addition_expression.left_value = number_expression come earlier than this
+            # I will see how that goes in the next update (see making comments is good idea)
             program.is_valid = False
             return addition_expression
         if instructions[i] == "NUMBER":
+            # if the next term is a NUMBER we now need to await and see what else comes, but we essentially loop
+            # and once we get our values we recursively build our tree
             addition_expression.left_value = number_expression
+            # though now realizing, maybe I need a seperate function since, if we are doing addition, why would we check if 
+            # we are using number or string? Still useful tho
+            # another thing I might need to change in the future
             right_value = number_or_string(instructions, tokens, program, i)
             addition_expression.right_value = right_value
             return addition_expression
         else:
             program.is_valid = False
+            return number_expression
+    
+    # this contains the same logic as Addition except for the name of what's being returned, might need to factor
+    elif instructions[i] == "SUBTRACTION":
+        subtraction_expression = Subtraction()
+        i += 1
+        if i >= len(instructions):
+            program.is_valid = False
+            return subtraction_expression
+        if instructions[i] == "NUMBER":
+            subtraction_expression.left_value = number_expression
+            right_value = number_or_string(instructions, tokens, program, i)
+            subtraction_expression.right_value = right_value
+            return subtraction_expression
+        else:
+            program.is_valid = False
             return
+       
 
 def main():
     file = open("print_5(1).ezzylan", "r")
@@ -150,12 +212,14 @@ def main():
     key_words = {
         "Print": "PRINT",
         ".": "END",
-        "+": "ADD"
+        "+": "ADD",
+        "-": "SUBTRACTION",
     }
     
     key_characters = {
         ".",
         "+",
+        "-",
     }
     
     lines = ezzylan_test.split("\n")
@@ -166,6 +230,7 @@ def main():
         print(tokens)
         instructions = convert(tokens, key_words)
         print(instructions)
+        # I wonder if I need to make creating the Program object and statement as another seperate function
         program = Program()
         statement = first_statement(instructions, tokens, program)
         program.statements.append(statement)

@@ -5,3 +5,8 @@ Print 5
 print
 Print
 Print 5 +
+Print 5 - 2.
+Print 5 - 2 - 1.
+Print 5 - 1 - 1
+Print 5 - 8.
+Print -
