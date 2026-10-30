@@ -1,0 +1,22 @@
+Potential Grammer (for just printing addition and subtraction results)
+
+Grammar:
+    program ::= print_stmt | comment .
+    print_stmt ::= "Print" S expression "." .
+    expression ::= atom { S operand S atom } .
+    operand ::= "+" | "-" .
+    atom ::= sub_expression | number .
+    sub_expression ::= expression .
+    S ::= " " {" "} .
+    number ::= digit { digit } .
+    digit ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" .
+
+Examples:
+Print 5.
+"Print" -> print_stmt
+S -> yes
+"5" -> expression -> atom -> number -> digit -> 5
+"." -> yes
+
+2+2 not
+2 + 2 yes
