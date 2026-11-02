@@ -1,7 +1,6 @@
 # Goal: Create a new tokenenizer that not only creates objects of class Token, but will generate and store error messages
-def token_by_tokenizer(ezzylan):
+def token_by_tokenizer_statements(ezzylan):
     i = 0
-    digit = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
     tokens = []
     while i < len(ezzylan):
         token = Token()
@@ -37,13 +36,33 @@ def token_by_tokenizer(ezzylan):
                     return tokens
                 else:
                     token.type = "PRINT"
-                    tokens.append(token) 
+                    tokens.append(token)
+                    tokens, i = token_by_tokenizer_expression(i, ezzylan, tokens)
             else:
                 # if we get here that means that the line ended before it should've 
                 token.type = "ERROR"
                 token.error = "Unknown word"
                 tokens.append(token)
                 return tokens
+        # we're not accepting letters here to be honest, at the moment, so we put error
+        else:
+            token.type = "ERROR"
+            token.error = f"Expected statement, found something that isn't at character {i}"
+            tokens.append(token)
+            return tokens    
+    return tokens
+
+def token_by_tokenizer_expression(i, ezzylan, tokens):
+    digit = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    while i < len(ezzylan):
+        token = Token()
+        character = ezzylan[i]
+        # comment
+        if character == "#":
+            return tokens, i
+        # skip spaces
+        elif character == " ":
+            i += 1
         # token is now number
         elif character in digit:
             token.type = "NUMBER"
@@ -56,7 +75,7 @@ def token_by_tokenizer(ezzylan):
                     token.value = int(token.value)
                     tokens.append(token)
                     i += 1
-                    break
+                    return tokens, i
                 # we reached the end of the number
                 elif character == " ":
                     token.value = int(token.value)
@@ -73,13 +92,13 @@ def token_by_tokenizer(ezzylan):
                     token.value += character
                     token.error = f"Expected number, found something that isn't a digit at character {i}"
                     tokens.append(token)
-                    return tokens
+                    return tokens, i
             else:
                 # if we get here that means that the line ended before it should've 
                 token.type = "ERROR"
                 token.error = "Expected something but line ended early"
                 tokens.append(token)
-                return tokens             
+                return tokens, i             
         elif character == "+":
             token.type = "ADDITION"
             # for now token.value will equal the + for debugging pruposes
@@ -97,13 +116,13 @@ def token_by_tokenizer(ezzylan):
                     token.value += character
                     token.error = "Expected space, found character that shouldn't be there"
                     tokens.append(token)
-                    return tokens
+                    return tokens, i
             else:
                 # if we get here that means that the line ended before it should've 
                 token.type = "ERROR"
                 token.error = "Expected something but line ended early"
                 tokens.append(token)
-                return tokens
+                return tokens, i
         elif character == "-":
             token.type = "SUBTRACTION"
             token.value = "-"
@@ -119,54 +138,133 @@ def token_by_tokenizer(ezzylan):
                     token.value += character
                     token.error = "Expected space, found character that shouldn't be there"
                     tokens.append(token)
-                    return tokens
+                    return tokens, i
             else:
                 # if we get here that means that the line ended before it should've 
                 token.type = "ERROR"
                 token.error = "Expected something but line ended early"
                 tokens.append(token)
-                return tokens             
+                return tokens, i            
         # we're not accepting letters here to be honest, at the moment, so we put error
         else:
             token.type = "ERROR"
             token.error = f"Expected number, found something that isn't a number at character {i}"
             tokens.append(token)
-            return tokens    
-    return tokens
+            return tokens, i    
+    return tokens, i
 
 class Token():
     def __init__(self):
         self.type = None
         self.value = None
         self.error = None
+
+class Program():
+    def __init__(self):
+        self.statements = []
+        self.valid = True
+    def display(self):
+        print("Program:")
+        for statement in self.statements:
+            statement.display(4)
+    def evaluate(self):
+        for statement in self.statements:
+            statement.evaluate()
+
+class PrintStatement():
+    def __init__(self):
+        self.expression = None
+    def display(self, indent):
+        print(" " * indent + "PrintStatement:")
+        self.expression.display(indent + 4)
+    def evaluate(self):
+        print(self.expression.evaluate())
+
+class Number():
+    def __init__(self, value):
+        self.value = value
+    def display(self, indent):
+        print(" " * indent + f"Number: {self.value}")
+    def evaluate(self):
+        return self.value
         
+class Addition():
+    def __init__(self):
+        self.left = None
+        self.right = None
+    def display(self, indent):
+        print(" " * indent + "Addition:")
+        self.left.display(indent + 4)
+        self.right.display(indent + 4)
+    def evaluate(self):
+        return self.left.evaluate() + self.right.evaluate()
+
+class Subtraction():
+    def __init__(self):
+        self.left = None
+        self.right = None
+    def display(self, indent):
+        print(" " * indent + "Subtraction:")
+        self.left.display(indent + 4)
+        self.right.display(indent + 4)
+    def evaluate(self):
+        return self.left.evaluate() - self.right.evaluate()
+
+def parser_statement(tokens):
+    i = 0
+    program = Program()
+    if i >= len(tokens):
+        return program
+    elif tokens[i].type == "PRINT":
+        i += 1
+        print_statement = PrintStatement()
+        print_statement.expression = parser_expression(i, tokens)
+        program.statements.append(print_statement)
+    return program
+
+def parser_expression(i, tokens):
+    if i >= len(tokens):
+        return None
+    if tokens[i].type == "NUMBER":
+        expression = Number(tokens[i].value)
+        i += 1
+        while i < len(tokens):
+            if tokens[i].type == "ADDITION":
+                addition = Addition()
+                addition.left = expression            
+                i += 1
+                if tokens[i].type == "NUMBER":
+                    addition.right = Number(tokens[i].value)
+                    expression = addition
+            elif tokens[i].type == "SUBTRACTION":
+                subtraction = Subtraction()
+                subtraction.left = expression            
+                i += 1
+                if tokens[i].type == "NUMBER":
+                    subtraction.right = Number(tokens[i].value)
+                    expression = subtraction
+            i += 1
+        return expression
 
 def main():
     file = open("token_by_token.ezzylan", "r")
     ezzylan_test = file.read()
     file.close()
     
-    # number = Token()
-    # tokens = []
-    # number.type = "NUMBER"
-    # number.value = "123"
-    # print(number)
-    # print(number.type)
-    # print(number.value)
-    # tokens.append(number)
-    
     lines = ezzylan_test.split("\n")
     for line in lines:
         if not line.strip():
             continue
         print("------------------------------------------------------------------")
-        tokens = token_by_tokenizer(line)
+        tokens = token_by_tokenizer_statements(line)
         print(line)
         for token in tokens:
             print(f"VALUE: {token.value}")
             print(f"TOKEN TYPE: {token.type}")
             print(f"ERROR: {token.error}")
-        
-        
+        program = parser_statement(tokens)
+        program.display()
+        program.evaluate()
+      
 if __name__ == "__main__":
     main()
