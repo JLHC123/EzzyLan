@@ -38,6 +38,7 @@ def token_by_tokenizer_statements(ezzylan):
                     token.type = "PRINT"
                     tokens.append(token)
                     tokens, i = token_by_tokenizer_expression(i, ezzylan, tokens)
+                    return tokens
             else:
                 # if we get here that means that the line ended before it should've 
                 token.type = "ERROR"
@@ -47,7 +48,7 @@ def token_by_tokenizer_statements(ezzylan):
         # we're not accepting letters here to be honest, at the moment, so we put error
         else:
             token.type = "ERROR"
-            token.error = f"Expected statement, found something that isn't at character {i}"
+            token.error = f"Expected statement, found something that isn't valid at character {i}"
             tokens.append(token)
             return tokens    
     return tokens
@@ -148,7 +149,7 @@ def token_by_tokenizer_expression(i, ezzylan, tokens):
         # we're not accepting letters here to be honest, at the moment, so we put error
         else:
             token.type = "ERROR"
-            token.error = f"Expected number, found something that isn't a number at character {i}"
+            token.error = f"Expected valid character, found something that isn't at character {i}"
             tokens.append(token)
             return tokens, i    
     return tokens, i
@@ -162,11 +163,17 @@ class Token():
 class Program():
     def __init__(self):
         self.statements = []
+        self.errors = []
         self.valid = True
     def display(self):
         print("Program:")
-        for statement in self.statements:
-            statement.display(4)
+        if self.errors:
+            print("Errors:")
+            for error in self.errors:
+                print(f"    {error}")
+        else:
+            for statement in self.statements:
+                statement.display(4)
     def evaluate(self):
         for statement in self.statements:
             statement.evaluate()
@@ -218,11 +225,11 @@ def parser_statement(tokens):
     elif tokens[i].type == "PRINT":
         i += 1
         print_statement = PrintStatement()
-        print_statement.expression = parser_expression(i, tokens)
+        print_statement.expression = parser_expression(i, tokens, program)
         program.statements.append(print_statement)
     return program
 
-def parser_expression(i, tokens):
+def parser_expression(i, tokens, program):
     if i >= len(tokens):
         return None
     if tokens[i].type == "NUMBER":
@@ -233,16 +240,28 @@ def parser_expression(i, tokens):
                 addition = Addition()
                 addition.left = expression            
                 i += 1
+                if i >= len(tokens):
+                    program.errors.append("Expected number after addition operator, found end of line")
+                    return expression
                 if tokens[i].type == "NUMBER":
                     addition.right = Number(tokens[i].value)
                     expression = addition
+                else:
+                    program.errors.append(f"Expected number after addition operator, found {tokens[i].type}")
+                    return expression
             elif tokens[i].type == "SUBTRACTION":
                 subtraction = Subtraction()
                 subtraction.left = expression            
                 i += 1
+                if i >= len(tokens):
+                    program.errors.append("Expected number after subtraction operator, found end of line")
+                    return expression
                 if tokens[i].type == "NUMBER":
                     subtraction.right = Number(tokens[i].value)
                     expression = subtraction
+                else:
+                    program.errors.append(f"Expected number after subtraction operator, found {tokens[i].type}")
+                    return expression
             i += 1
         return expression
 
@@ -262,9 +281,11 @@ def main():
             print(f"VALUE: {token.value}")
             print(f"TOKEN TYPE: {token.type}")
             print(f"ERROR: {token.error}")
-        program = parser_statement(tokens)
-        program.display()
-        program.evaluate()
+        if tokens and tokens[-1].type != "ERROR":
+            program = parser_statement(tokens)
+            program.display()
+            if not program.errors:
+                program.evaluate()
       
 if __name__ == "__main__":
     main()

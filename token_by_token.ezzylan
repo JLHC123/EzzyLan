@@ -17,7 +17,19 @@
 
 # 1 + 2. 1 + 1.
 
+Print 10. Print 10. 
+Print 10 + 2 / 2.
 Print 10.
 Print 10 + 12.
 Print 10 + 12 - 10.
 Print 10 - 2 - 1.
+Print 10 - - 2.
+Print 10 + + 2.
+
+Print 10 + + 10.
+
+Print 5 + 
+
+Print 5.5.
+
+Print 5 + 5 +.
