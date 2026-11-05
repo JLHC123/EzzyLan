@@ -1,35 +1,75 @@
-# Print 10 + + 10.
-# Print 1 + 2 - 3 + 4 - 5 + 6.
+# First off, comments seem to work, as in the program skips comments
+# This will print only a 5. 
+Print 5.
 
+# This will lead to an error, that being, the line ended early
+Print 5
 
+# This will also lead to an error, that being it cannot detect a valid statement, because print != Print
+print 5.
 
-# Printt 1 + 2.
-# Print      1     +    2.
-# Print..
-# Print 1 + 2.. Print 1 + 2.
-# Print 1 + 2. Print 1 + 1.
-# Print
-# Print 1.
-# Print 1 + 2.
-# Print 1 + 2 ++ 3.
+# This is also invalid because there is not at least one space between the Print and 5, so while adding letters, it found a number
+Print5.
 
-# print 1 + 2.
+# Ironically this is valid, because there's at least one space between Print and 5. 
+Print        5. 
 
-# 1 + 2. 1 + 1.
+# Again, not a "valid statement word"
+Printt 5.
 
-Print 10. Print 10. 
+# This one adds 1 + 2 together!
+Print 1 + 2. 
+
+# This one subtracts 2 - 1!
+Print 2 - 1.
+
+# The same logic for spacing exists with addition and subtraction, as does the other cases like incorrect statement words, periods, etc. 
+
+# Also we can do multi-long digit numbers. And multiple addition and subtraction
+Print 10 + 100 - 20 - 10 + 10.
+
+# The code properly sees the second plus sign. While tokenizer doesn't because it's seperated, here, the parser finds the logical error
+Print 1 + + 2.
+
+# Same thing with subtraction, and also, again, while the tokenizer is only built for making tokens, parser is able to figure it out
+# even with multiple duplicate operators
+Print 1 - - - 2. 
+
+# Just as a reminder, you need a valid statement at the beginning or else it doesn't run
+1 + 2.
+
+# Since division isn't supported at the moment (neither is subtraction), this line leads to an error
 Print 10 + 2 / 2.
-Print 10.
-Print 10 + 12.
-Print 10 + 12 - 10.
-Print 10 - 2 - 1.
-Print 10 - - 2.
-Print 10 + + 2.
 
-Print 10 + + 10.
-
+# Expected number after plus sign, but found none, so error, so it catches this well. 
 Print 5 + 
 
-Print 5.5.
+# No space between ++, would've entered a expect number error anyways
+Print 5 ++ 5.
 
+# Like with Print. which ends too early or ++ which currently would read as an error, +. will also send an error because it expects a space
 Print 5 + 5 +.
+
+#
+#
+#
+#
+
+# This is one case that I will need to fix. The tokenizer does not see this as an issue, but the parser should be designed to enforce
+# a operand between the two 5s. 
+# Print 5 5.
+
+# Another case that I need to fix, the comment symbol seems to be messing with how the code runs, because it returns tokens immedietly
+# So my guess is that the parser doesn't find this as an error, and thus the program.execute() function runs on nothing
+# Print # 5. 
+
+# For now, the code only sees Print 1 + 2. and ignores the following Print 1 + 3. That will need to be changed. 
+# Print 1 + 2. Print 1 + 3. 
+
+# Again, this time more egregious, it ignores the second period, which I hope to later make syntaxically incorrect
+# Though one could make the argument the second period is harmless, eh...
+# Print 1 + 2.. Print 1 + 2.
+
+# Again since the code immedietly returns tokens upon finding the first period, it ignores everything else. 
+# In a true program that is able to handle logic across multiple lines that end with periods, this should be caught.
+# Print 5.5.
