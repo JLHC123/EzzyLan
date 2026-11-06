@@ -38,7 +38,6 @@ def token_by_tokenizer_statements(ezzylan):
                     token.type = "PRINT"
                     tokens.append(token)
                     tokens, i = token_by_tokenizer_expression(i, ezzylan, tokens)
-                    return tokens
             else:
                 # if we get here that means that the line ended before it should've 
                 token.type = "ERROR"
@@ -74,6 +73,10 @@ def token_by_tokenizer_expression(i, ezzylan, tokens):
                 # the line ends with the number which can be valid
                 if character == ".":
                     token.value = int(token.value)
+                    tokens.append(token)
+                    token = Token()
+                    token.type = "END"
+                    token.value = "."
                     tokens.append(token)
                     i += 1
                     return tokens, i
@@ -222,17 +225,18 @@ def parser_statement(tokens):
     program = Program()
     if i >= len(tokens):
         return program
-    elif tokens[i].type == "PRINT":
-        i += 1
-        print_statement = PrintStatement()
-        print_statement.expression = parser_expression(i, tokens, program)
-        program.statements.append(print_statement)
+    while i < len(tokens) and program.errors == []:
+        if tokens[i].type == "PRINT":
+            i += 1
+            print_statement = PrintStatement()
+            i, print_statement.expression = parser_expression(i, tokens, program)
+            program.statements.append(print_statement)
     return program
 
 def parser_expression(i, tokens, program):
     if i >= len(tokens):
         program.errors.append("Expected expression, found end of line")
-        return None
+        return i, None
     if tokens[i].type == "NUMBER":
         expression = Number(tokens[i].value)
         i += 1
@@ -243,32 +247,35 @@ def parser_expression(i, tokens, program):
                 i += 1
                 if i >= len(tokens):
                     program.errors.append("Expected number after addition operator, found end of line")
-                    return expression
+                    return i, expression
                 if tokens[i].type == "NUMBER":
                     addition.right = Number(tokens[i].value)
                     expression = addition
                 else:
                     program.errors.append(f"Expected number after addition operator, found {tokens[i].type}")
-                    return expression
+                    return i, expression
             elif tokens[i].type == "SUBTRACTION":
                 subtraction = Subtraction()
                 subtraction.left = expression            
                 i += 1
                 if i >= len(tokens):
                     program.errors.append("Expected number after subtraction operator, found end of line")
-                    return expression
+                    return i, expression
                 if tokens[i].type == "NUMBER":
                     subtraction.right = Number(tokens[i].value)
                     expression = subtraction
                 else:
                     program.errors.append(f"Expected number after subtraction operator, found {tokens[i].type}")
-                    return expression
+                    return i, expression
+            elif tokens[i].type == "END":
+                i += 1
+                return i, expression
             # lack of operator in between numbers is an error. 
             else:
                 program.errors.append(f"Expected operator after number, found {tokens[i].type}")
-                return expression
+                return i, expression
             i += 1
-        return expression
+        return i, expression
 
 def main():
     file = open("token_by_token.ezzylan", "r")

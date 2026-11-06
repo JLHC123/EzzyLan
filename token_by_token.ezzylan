@@ -47,29 +47,38 @@ Print 5 +
 # No space between ++, would've entered a expect number error anyways
 Print 5 ++ 5.
 
+
+#
+#
+#
+#
+
 # Like with Print. which ends too early or ++ which currently would read as an error, +. will also send an error because it expects a space
 Print 5 + 5 +.
 
-# This has now been fixed. Lack of operator leads to error!
+# Since the parser can't find an operator after 5, it winds up as an error
 Print 5 5.
 
-# This now has been handled, since nothing follows print it will lead to error. 
+# Since encountering a (programmer) comment symbol returns the code early, this essentially acts as just Print and that is an error!
 Print # 5. 
 
+# The code is now able to continue past the first period! And it will keep continuing until the line ends. 
+Print 1 + 2. Print 1 + 3. 
+
+# Something I noticed with these two next cases, if at least one part of the code is wrong it won't output anything.
+# If the first valid statement logic is correct but the second half isn't, it'll just bring up the error. 
+# This is where asking whether the first correct line should run or not should be brought up.
+# Otherwise the user wouldn't know what worked and what didn't.
+
+# The code will first correctly execute Print 1 + 2. But upon reading . Print 1 + 2. it detects an error with the period and thus error!
+Print 1 + 2.. Print 1 + 2.
+
+# The tokenizer reads Print 5. correctly but upon finding 5. it marks it as an error. 
+Print 5.5.
+
 #
+# 
+# 
 #
-#
-#
 
-
-
-# For now, the code only sees Print 1 + 2. and ignores the following Print 1 + 3. That will need to be changed. 
-# Print 1 + 2. Print 1 + 3. 
-
-# Again, this time more egregious, it ignores the second period, which I hope to later make syntaxically incorrect
-# Though one could make the argument the second period is harmless, eh...
-# Print 1 + 2.. Print 1 + 2.
-
-# Again since the code immedietly returns tokens upon finding the first period, it ignores everything else. 
-# In a true program that is able to handle logic across multiple lines that end with periods, this should be caught.
-# Print 5.5.
+Print 1 + 2 + 3. Print 1 - 5 + 10. 
