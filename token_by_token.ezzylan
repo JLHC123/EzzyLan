@@ -50,18 +50,18 @@ Print 5 ++ 5.
 # Like with Print. which ends too early or ++ which currently would read as an error, +. will also send an error because it expects a space
 Print 5 + 5 +.
 
+# This has now been fixed. Lack of operator leads to error!
+Print 5 5.
+
+# This now has been handled, since nothing follows print it will lead to error. 
+Print # 5. 
+
 #
 #
 #
 #
 
-# This is one case that I will need to fix. The tokenizer does not see this as an issue, but the parser should be designed to enforce
-# a operand between the two 5s. 
-# Print 5 5.
 
-# Another case that I need to fix, the comment symbol seems to be messing with how the code runs, because it returns tokens immedietly
-# So my guess is that the parser doesn't find this as an error, and thus the program.execute() function runs on nothing
-# Print # 5. 
 
 # For now, the code only sees Print 1 + 2. and ignores the following Print 1 + 3. That will need to be changed. 
 # Print 1 + 2. Print 1 + 3. 

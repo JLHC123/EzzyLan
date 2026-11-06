@@ -231,6 +231,7 @@ def parser_statement(tokens):
 
 def parser_expression(i, tokens, program):
     if i >= len(tokens):
+        program.errors.append("Expected expression, found end of line")
         return None
     if tokens[i].type == "NUMBER":
         expression = Number(tokens[i].value)
@@ -262,6 +263,10 @@ def parser_expression(i, tokens, program):
                 else:
                     program.errors.append(f"Expected number after subtraction operator, found {tokens[i].type}")
                     return expression
+            # lack of operator in between numbers is an error. 
+            else:
+                program.errors.append(f"Expected operator after number, found {tokens[i].type}")
+                return expression
             i += 1
         return expression
 
