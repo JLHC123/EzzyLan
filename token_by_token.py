@@ -7,7 +7,8 @@ def token_by_tokenizer_statements(ezzylan):
         character = ezzylan[i]
         # comment
         if character == "#":
-            return tokens
+            while i < len(ezzylan) and ezzylan[i] != "\n":
+                i += 1
         # skip spaces
         elif character == " ":
             i += 1
@@ -19,6 +20,12 @@ def token_by_tokenizer_statements(ezzylan):
                 if character == " ":
                     i += 1
                     break
+                elif character == "#":
+                    while i < len(ezzylan) and ezzylan[i] != "\n":
+                        i += 1
+                elif character == "\n":
+                    i += 1
+                    continue
                 elif character.isalpha():
                     token.value += character
                     i += 1
@@ -38,14 +45,19 @@ def token_by_tokenizer_statements(ezzylan):
                     token.type = "PRINT"
                     tokens.append(token)
                     tokens, i = token_by_tokenizer_expression(i, ezzylan, tokens)
+                    if tokens and tokens[-1].type == "ERROR":
+                        return tokens
             else:
                 # if we get here that means that the line ended before it should've 
                 token.type = "ERROR"
                 token.error = "Unknown word"
                 tokens.append(token)
                 return tokens
+        elif character == "\n":
+            i += 1
         # we're not accepting letters here to be honest, at the moment, so we put error
         else:
+            token.value = character
             token.type = "ERROR"
             token.error = f"Expected statement, found something that isn't valid at character {i}"
             tokens.append(token)
@@ -89,6 +101,8 @@ def token_by_tokenizer_expression(i, ezzylan, tokens):
                 # still adding digits to the number
                 elif character in digit:
                     token.value += character
+                    i += 1
+                elif character == "\n":
                     i += 1
                 # letter, symbol, not a number character appears instead
                 else:
@@ -149,8 +163,11 @@ def token_by_tokenizer_expression(i, ezzylan, tokens):
                 token.error = "Expected something but line ended early"
                 tokens.append(token)
                 return tokens, i            
+        elif character == "\n":
+            i += 1
         # we're not accepting letters here to be honest, at the moment, so we put error
         else:
+            token.value = character
             token.type = "ERROR"
             token.error = f"Expected valid character, found something that isn't at character {i}"
             tokens.append(token)
@@ -170,16 +187,24 @@ class Program():
         self.valid = True
     def display(self):
         print("Program:")
+        for statement in self.statements:
+            statement.display(4)
+        # if self.errors:
+        #     print("Errors:")
+        #     for error in self.errors:
+        #         print(f"    {error}")
+        # else:
+        #     for statement in self.statements:
+        #         statement.display(4)
+    def evaluate(self):
         if self.errors:
-            print("Errors:")
+            for i in range(len(self.statements) - 1):
+                self.statements[i].evaluate()
             for error in self.errors:
-                print(f"    {error}")
+                print(f"Error: {error}")
         else:
             for statement in self.statements:
-                statement.display(4)
-    def evaluate(self):
-        for statement in self.statements:
-            statement.evaluate()
+                statement.evaluate()
 
 class PrintStatement():
     def __init__(self):
@@ -278,26 +303,39 @@ def parser_expression(i, tokens, program):
         return i, expression
 
 def main():
-    file = open("token_by_token.ezzylan", "r")
+    # file = open("token_by_token.ezzylan", "r")
+    file = open("test_1.ezzylan", "r")
     ezzylan_test = file.read()
     file.close()
     
-    lines = ezzylan_test.split("\n")
-    for line in lines:
-        if not line.strip():
-            continue
-        print("------------------------------------------------------------------")
-        tokens = token_by_tokenizer_statements(line)
-        print(line)
-        for token in tokens:
-            print(f"VALUE: {token.value}")
-            print(f"TOKEN TYPE: {token.type}")
-            print(f"ERROR: {token.error}")
-        if tokens and tokens[-1].type != "ERROR":
-            program = parser_statement(tokens)
-            program.display()
-            if not program.errors:
-                program.evaluate()
+    print("------------------------------------------------------------------")
+    tokens = token_by_tokenizer_statements(ezzylan_test)
+    for token in tokens:
+        print(f"VALUE: {token.value}")
+        print(f"TOKEN TYPE: {token.type}")
+        print(f"ERROR: {token.error}")
+    program = parser_statement(tokens)
+    # Now the program refuses to evaluate if there are errors
+    # Goal, make it display up to the errors
+    program.display()
+    program.evaluate()
+    
+    # lines = ezzylan_test.split("\n")
+    # for line in lines:
+    #     if not line.strip():
+    #         continue
+    #     print("------------------------------------------------------------------")
+    #     tokens = token_by_tokenizer_statements(line)
+    #     print(line)
+    #     for token in tokens:
+    #         print(f"VALUE: {token.value}")
+    #         print(f"TOKEN TYPE: {token.type}")
+    #         print(f"ERROR: {token.error}")
+    #     if tokens and tokens[-1].type != "ERROR":
+    #         program = parser_statement(tokens)
+    #         program.display()
+    #         if not program.errors:
+    #             program.evaluate()
       
 if __name__ == "__main__":
     main()
